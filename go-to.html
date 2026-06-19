@@ -135,18 +135,27 @@
                 li.remove();
             });
 
+            const editBtn = document.createElement('button');
+            editBtn.textContent = "แก้ไข"
+
+            editBtn.addEventListener('click', () => {
+                inputGoto.value = li.firstChild.textContent;
+                li.remove();
+            })
+
 
 
             li.appendChild(delBtn);
+            li.appendChild(editBtn);
             numberList.appendChild(li);
             inputGoto.value = "";
 
-            inputGoto.addEventListener('keypress', (e) => {
+        })
+        inputGoto.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     btnGoto.click();
                 }
             });
-        })
     </script>
 </body>
 </html>
