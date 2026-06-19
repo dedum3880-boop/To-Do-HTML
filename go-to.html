@@ -73,33 +73,62 @@
         list-style: none;
     }
 
+    /* --- แก้ไขสไตล์ตรงนี้เพื่อให้ปุ่มจัดกลุ่มอย่างสวยงาม --- */
     #number-list li {
         display: flex;
         justify-content: space-between;
         align-items: center;
         background: #f8f9fa;
-        padding: 12px;
+        padding: 12px 16px;
         margin-bottom: 10px;
-        border-radius: 8px;
+        border-radius: 12px; /* เพิ่มความโค้งมนให้เหมือนรูปตัวอย่าง */
         border-left: 5px solid #4CAF50;
     }
 
+    /* กล่องข้อความด้านซ้าย */
+    #number-list li span {
+        font-size: 16px;
+        color: #333;
+        word-break: break-all;
+    }
+
+    /* จัดกลุ่มปุ่มให้อยู่ฝั่งขวาและเว้นระยะห่างระหว่างกัน */
+    #number-list li .btn-group {
+        display: flex;
+        gap: 8px; 
+    }
+
     #number-list li button {
-        background: #ff4d4d;
         color: white;
         border: none;
-        padding: 6px 12px;
-        border-radius: 6px;
+        padding: 6px 14px;
+        border-radius: 8px; /* ปรับให้โค้งมนเหลี่ยมสวยตามรูป */
         cursor: pointer;
+        font-weight: bold;
         transition: 0.3s;
     }
 
-    #number-list li button:hover {
+    /* ปุ่มลบ (สีแดง) */
+    #number-list li .btn-delete {
+        background: #ff4d4d;
+    }
+
+    #number-list li .btn-delete:hover {
         background: #e60000;
+    }
+
+    /* ปุ่มแก้ไข (สีเหลือง) */
+    #number-list li .btn-edit {
+        background: #FFD000;
+        color: white;
+    }
+
+    #number-list li .btn-edit:hover {
+        background: #e6bc00;
     }
 </style>
 <body>
-    <div class = "container">
+    <div class="container">
         <h1>Go To</h1>
         
         <div>
@@ -108,7 +137,6 @@
         </div>
 
         <ul id="number-list"></ul>
-
     </div>
 
     <script>
@@ -119,43 +147,55 @@
         btnGoto.addEventListener('click', () => {
             const numberValue = inputGoto.value;
 
-            if (numberValue === "") {
+            if (numberValue.trim() === "") {
                 alert("กรุณากรอกข้อมูล");
                 return;
             }
 
             const li = document.createElement('li');
-            li.textContent = inputGoto.value;
 
+            // 1. สร้างตัวครอบข้อความ (Span) เพื่อไม่ให้กระทบกับปุ่ม
+            const textSpan = document.createElement('span');
+            textSpan.textContent = numberValue;
+            li.appendChild(textSpan);
 
+            // 2. สร้างกล่องสำหรับรวมปุ่มลบและปุ่มแก้ไขเข้าด้วยกัน (Button Group)
+            const btnGroup = document.createElement('div');
+            btnGroup.className = 'btn-group';
+
+            // ปุ่มลบ
             const delBtn = document.createElement('button');
+            delBtn.className = 'btn-delete';
             delBtn.textContent = "ลบ";
-
             delBtn.addEventListener('click', () => {
                 li.remove();
             });
 
+            // ปุ่มแก้ไข
             const editBtn = document.createElement('button');
-            editBtn.textContent = "แก้ไข"
-
+            editBtn.className = 'btn-edit';
+            editBtn.textContent = "แก้ไข";
             editBtn.addEventListener('click', () => {
-                inputGoto.value = li.firstChild.textContent;
+                inputGoto.value = textSpan.textContent; // ดึงค่าจาก textSpan โดยตรง ปลอดภัยกว่า
                 li.remove();
-            })
+            });
 
+            // นำปุ่มทั้งสองใส่เข้าไปในกลุ่มปุ่มก่อน
+            btnGroup.appendChild(delBtn);
+            btnGroup.appendChild(editBtn);
 
-
-            li.appendChild(delBtn);
-            li.appendChild(editBtn);
+            // นำกลุ่มปุ่มไปต่อท้ายใน li
+            li.appendChild(btnGroup);
+            
             numberList.appendChild(li);
             inputGoto.value = "";
+        });
 
-        })
-        inputGoto.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    btnGoto.click();
-                }
-            });
+        inputGoto.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                btnGoto.click();
+            }
+        });
     </script>
 </body>
 </html>
