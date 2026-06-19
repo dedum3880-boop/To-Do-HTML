@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        background: #f4f6f9;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding-top: 50px;
+    }
+
+    .container {
+        background: white;
+        width: 400px;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .container > div {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    #input-go-to {
+        flex: 1;
+        padding: 10px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        outline: none;
+        transition: 0.3s;
+    }
+
+    #input-go-to:focus {
+        border-color: #4CAF50;
+    }
+
+    #btn-go-to {
+        padding: 10px 20px;
+        border: none;
+        background: #4CAF50;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    #btn-go-to:hover {
+        background: #45a049;
+    }
+
+    #number-list {
+        list-style: none;
+    }
+
+    #number-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8f9fa;
+        padding: 12px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        border-left: 5px solid #4CAF50;
+    }
+
+    #number-list li button {
+        background: #ff4d4d;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    #number-list li button:hover {
+        background: #e60000;
+    }
+</style>
+<body>
+    <div class = "container">
+        <h1>Go To</h1>
+        
+        <div>
+            <input type="text" id="input-go-to" placeholder="Enter a number">
+            <button id="btn-go-to">Go</button>
+        </div>
+
+        <ul id="number-list"></ul>
+
+    </div>
+
+    <script>
+        const inputGoto = document.getElementById('input-go-to');
+        const btnGoto = document.getElementById('btn-go-to');
+        const numberList = document.getElementById('number-list');
+
+        btnGoto.addEventListener('click', () => {
+            const numberValue = inputGoto.value;
+
+            if (numberValue === "") {
+                alert("กรุณากรอกข้อมูล");
+                return;
+            }
+
+            const li = document.createElement('li');
+            li.textContent = inputGoto.value;
+
+
+            const delBtn = document.createElement('button');
+            delBtn.textContent = "ลบ";
+
+            delBtn.addEventListener('click', () => {
+                li.remove();
+            });
+
+
+
+            li.appendChild(delBtn);
+            numberList.appendChild(li);
+            inputGoto.value = "";
+
+            inputGoto.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    btnGoto.click();
+                }
+            });
+        })
+    </script>
+</body>
+</html>

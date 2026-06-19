@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter App - Level 3</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .counter-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            width: 320px;
+        }
+        #number {
+            font-size: 72px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #58a6ff;
+            transition: color 0.3s ease;
+        }
+        
+        /* ⚠️ สไตล์ของกล่องข้อความเตือนที่เพิ่มเข้ามาใหม่ */
+        #warning-msg {
+            color: #da3637; /* สีแดงเตือน */
+            font-size: 14px;
+            height: 20px; /* จองพื้นที่ไว้เพื่อไม่ให้การ์ดขยับเวลาข้อความโผล่ */
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            transition: transform 0.1s;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        #btn-minus { background-color: #da3637; }
+        #btn-plus { background-color: #238636; }
+        #btn-reset { 
+            background-color: #21262d; 
+            border: 1px solid #30363d;
+            width: 100%;
+        } 
+        #btn-reset:hover { background-color: #30363d; }
+    </style>
+</head>
+<body>
+
+    <div class="counter-card">
+        <h2>Counter App v3</h2>
+        
+        <div id="number">0</div>
+
+        <div id="warning-msg"></div>
+
+        <div class="btn-group">
+            <button id="btn-minus">-</button>
+            <button id="btn-plus">+</button>
+        </div>
+
+        <button id="btn-reset">Reset</button>
+    </div>
+
+    <script>
+        const numberDisplay = document.getElementById('number');
+        const plusBtn = document.getElementById('btn-plus');
+        const minusBtn = document.getElementById('btn-minus');
+        const resetBtn = document.getElementById('btn-reset');
+        
+        // 1. ดึง Element กล่องข้อความเตือนมาใช้งานใน JS
+        const warningMsg = document.getElementById('warning-msg');
+
+        let count = 0;
+
+        // ➕ ปุ่มบวก
+        plusBtn.addEventListener('click', () => {
+            // 📝 [โจทย์ย่อยที่ 1]: ก่อนจะบวกค่า เช็คเงื่อนไขก่อนว่า count น้อยกว่า 10 ไหม? ถึงจะยอมให้บวกเพิ่มได้
+            if (count >= 10){
+                count = 10; // ป้องกันไม่ให้เกิน 10
+
+                 // 📝 [โจทย์ย่อยที่ 2]: ถ้าเกิดว่า count มันเท่ากับ 10 อยู่แล้ว (แปลว่ากดเกิน) ให้เอาข้อความ "เต็มแล้วจ้า! (สูงสุด 10)" ไปใส่ใน warningMsg.textContent
+                warningMsg.textContent = "เต็มแล้วจ้า! (สูงสุด 10)"; // แสดงข้อความเตือน
+                return; // ออกจากฟังก์ชัน ไม่ให้บวกเพิ่ม
+            }
+            numberDisplay.style.color = "#13FF08"; // เปลี่ยนสีตัวเลขเป็นเขียวเมื่อบวก
+            
+            count += 1;
+            numberDisplay.textContent = count;
+            
+            // 📝 [โจทย์ย่อยที่ 3]: จัดการเรื่องสีแบบหลายเงื่อนไข (if - else if)
+            // - ถ้า count >= 8 ให้เปลี่ยนตัวเลขเป็นสีส้ม (#ff9a00)
+            if (count >= 8) {
+                numberDisplay.style.color = "#ff9a00";
+            }
+            // - ถ้า count > 0 และน้อยกว่า 8 ให้เป็นสีเขียว (#30a46c)
+            else if (count > 0) {
+                numberDisplay.style.color = "#30a46c";
+            }
+        });
+
+        // ➖ ปุ่มลบ
+        minusBtn.addEventListener('click', () => {
+            if (count > 0) {
+                count -= 1;
+                numberDisplay.textContent = count;
+                
+                // 📝 [โจทย์ย่อยที่ 4]: พอกดลดจำนวนลงมาแล้ว อย่าลืมสั่งล้างข้อความเตือนให้หายไปด้วยนะครับ
+                // วิธีเคลียร์ข้อความเตือน: warningMsg.textContent = "";
+                warningMsg.textContent = ""; // เคลียร์ข้อความเตือนเมื่อกดลด
+            }
+
+            // 📝 [โจทย์ย่อยที่ 5]: อย่าลืมเช็คเงื่อนไขเรื่องสีของปุ่มลบด้วยนะ!
+            // - ถ้าลดลงมาจนถึง 0 ให้เปลี่ยนกลับเป็นสีฟ้า (#58a6ff)
+            if (count === 0) {
+                numberDisplay.style.color = "#58a6ff"
+            }else if (count < 8) {
+                numberDisplay.style.color = "#30a46c";
+            }
+        });
+
+        // 🔄 ปุ่ม Reset
+        resetBtn.addEventListener('click', () => {
+            count = 0;
+            numberDisplay.textContent = count;
+            numberDisplay.style.color = "#58a6ff";
+            warningMsg.textContent = ""; // เคลียร์ข้อความเตือนเมื่อกด Reset
+        });
+
+    </script>
+</body>
+</html>

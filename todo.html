@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App - Level 3 (Final)</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .todo-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            width: 380px;
+        }
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            color: #58a6ff;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            background-color: #0d1117;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #58a6ff;
+        }
+        #btn-add {
+            background-color: #238636;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #btn-add:active {
+            transform: scale(0.95);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        li {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            word-break: break-all;
+            cursor: pointer; /* 💡 เปลี่ยนเมาส์ให้เป็นรูปมือเมื่อชี้ที่ li เพื่อให้รู้ว่าคลิกได้ */
+            transition: all 0.2s;
+        }
+        
+        /* 🎯 [CSS ใหม่] สไตล์สำหรับรายการที่ทำเสร็จแล้ว */
+        li.completed {
+            text-decoration: line-through; /* ขีดฆ่ากลางข้อความ */
+            color: #8b949e; /* เปลี่ยนตัวอักษรเป็นสีเทาจางๆ */
+            background-color: #161b22; /* เปลี่ยนสีพื้นหลังให้มืดลง */
+            border-color: #21262d;
+        }
+
+        .btn-delete {
+            background-color: #da3637;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+        .btn-delete:hover {
+            background-color: #f85149;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="todo-card">
+        <h2>My To-Do List v3</h2>
+        
+        <div class="input-group">
+            <input type="text" id="todo-input" placeholder="พิมพ์สิ่งที่จะทำตรงนี้...">
+            <button id="btn-add">เพิ่ม</button>
+        </div>
+
+        <ul id="todo-list"></ul>
+    </div>
+
+    <script>
+        const todoInput = document.getElementById('todo-input');
+        const addBtn = document.getElementById('btn-add');
+        const todoList = document.getElementById('todo-list');
+
+        addBtn.addEventListener('click', () => {
+            const textValue = todoInput.value;
+
+            if (textValue === "") {
+                alert("กรุณากรอกข้อมูล");
+                return;
+            }
+
+            const newLi = document.createElement('li');
+            newLi.textContent = textValue;
+
+            const delBtn = document.createElement('button');
+            delBtn.textContent = "ลบ";
+            delBtn.classList.add('btn-delete');
+
+            delBtn.addEventListener('click', (event) => {
+                newLi.remove();
+                // 💡 แอบกระซิบ: เติม event.stopPropagation(); ไว้ตรงนี้ 
+                // เพื่อไม่ให้เวลาเรากดปุ่มลบ แล้วลอจิกการคลิกของตัว li มันทำงานซ้อนกันครับ (บั๊กยอดฮิต)
+                event.stopPropagation(); 
+            });
+
+            // 📝 [โจทย์ย่อยสุดท้าย]: ดักจับ Event การคลิกที่ตัวแท็ก <li> (newLi)
+            // เพื่อทำการเปิด-ปิด คลาสที่ชื่อว่า 'completed' ในการขีดฆ่าข้อความ
+            // คำใบ้: การ "เปิด-ปิดสลับไปมา" เราจะไม่ใช้ .add แต่เราจะใช้คำสั่ง .toggle ครับ
+            // ลองเขียนดักจับเหตุการณ์คลิก (addEventListener) ที่ newLi
+            // แล้วข้างในให้เรียกใช้คำสั่ง: newLi.classList.toggle('completed');
+            
+            // เขียนโค้ดดักจับคลิกของ newLi ตรงนี้เลยครับ...
+            newLi.addEventListener('click', () => {
+                newLi.classList.toggle('completed');
+            });
+
+
+            newLi.appendChild(delBtn);
+            todoList.appendChild(newLi);
+            todoInput.value = "";
+        });
+    </script>
+</body>
+</html>

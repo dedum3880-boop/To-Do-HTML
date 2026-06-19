@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strok - Dynamic CRUD List</title>
+    <style>
+        /* 🌌 ธีมดาร์กสุดเท่สไตล์มินิมอล */
+        body {
+            background-color: #0d1117;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 📦 การ์ดส่วนควบคุมการกรอกข้อมูล */
+        .app-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 30px;
+            width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #58a6ff;
+            letter-spacing: 1px;
+        }
+
+        .wrapper-name {
+            margin-bottom: 15px;
+        }
+        
+        #name {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #0d1117;
+            border: 2px solid #30363d;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        #name:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 8px rgba(88, 166, 255, 0.3);
+        }
+
+        /* 🕹️ ปุ่ม Submit */
+        #submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #submit:hover {
+            box-shadow: 0 0 15px rgba(46, 160, 67, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* 📋 พื้นที่แสดงรายการที่เพิ่มขึ้นเรื่อย ๆ */
+        .list-container {
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* เว้นระยะห่างระหว่างการ์ดข้อมูล */
+        }
+
+        /* 🏷️ กล่องข้อมูลแต่ละรายการที่โผล่ขึ้นมา */
+        .item-box {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.3s ease; /* เอฟเฟกต์ตอนไอเทมโผล่ขึ้นมา */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .item-text {
+            font-size: 16px;
+            color: #c9d1d9;
+            word-break: break-all;
+            padding-right: 10px;
+        }
+
+        /* ⚙️ กลุ่มปุ่มจัดการข้อมูล */
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* ปุ่มแก้ไข (สีส้ม) */
+        .btn-edit {
+            background-color: #d29922;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .btn-edit:hover { background-color: #e3b341; }
+
+        /* ปุ่มลบ (สีแดง) */
+        .btn-delete {
+            background-color: #f85149;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .btn-delete:hover { background-color: #ff7b72; }
+    </style>
+</head>
+<body>
+
+    <div class="app-card">
+        <h2>ACCOUNT REGISTER</h2>
+        <div class="wrapper-name">
+            <input type="text" id="name" placeholder="Enter name to add...">
+        </div>
+        <div class="Box">
+            <button id="submit">Submit Data</button>
+        </div> 
+    </div>
+
+    <div class="list-container" id="listContainer">
+    </div>
+
+    <script>
+        const nameInput = document.getElementById('name');
+        const submitBtn = document.getElementById('submit');
+        const listContainer = document.getElementById('listContainer');
+
+        let isEditing = false;      // เช็คว่าตอนนี้กำลังอยู่ในโหมด "แก้ไข" หรือเปล่า
+        let editTarget = null;      // เก็บตำแหน่งของการ์ดที่เรากำลังกดแก้ไขอยู่
+
+        // 🟢 ฟังก์ชันหลักเมื่อกดปุ่ม Submit
+        submitBtn.addEventListener('click', () => {
+            const dataText = nameInput.value.trim();
+
+            if (dataText === "") {
+                alert("❌ กรุณากรอกข้อมูลก่อนกด Submit ครับ!");
+                return;
+            }
+
+            if (isEditing) {
+                // 🔄 โหมดแก้ไข: เอาข้อความใหม่ไปเปลี่ยนแทนข้อความเดิม
+                editTarget.querySelector('.item-text').innerText = dataText;
+                
+                // คืนค่าปุ่มและสถานะกลับเป็นปกติ
+                submitBtn.innerText = "Submit Data";
+                submitBtn.style.background = "linear-gradient(135deg, #238636 0%, #2ea043 100%)";
+                isEditing = false;
+                editTarget = null;
+            } else {
+                // ➕ โหมดเพิ่มข้อมูลปกติ: สร้างกล่องข้อมูลใหม่ (Item Box) ขึ้นมา
+                const itemBox = document.createElement('div');
+                itemBox.className = 'item-box';
+
+                itemBox.innerHTML = `
+                    <div class="item-text">${dataText}</div>
+                    <div class="btn-group">
+                        <button class="btn-edit">แก้ไข</button>
+                        <button class="btn-delete">ลบ</button>
+                    </div>
+                `;
+
+                // 🔴 ลอจิกของปุ่มลบ (ดึงกล่องนี้ออกจากหน้าจอทันที)
+                const deleteBtn = itemBox.querySelector('.btn-delete');
+                deleteBtn.addEventListener('click', () => {
+                    itemBox.remove();
+                });
+
+                // 🟡 ลอจิกของปุ่มแก้ไข (ดึงชื่อเดิมกลับขึ้นไปบนกล่องกรอกข้อมูลเพื่อรอแก้ไข)
+                const editBtn = itemBox.querySelector('.btn-edit');
+                editBtn.addEventListener('click', () => {
+                    nameInput.value = itemBox.querySelector('.item-text').innerText;
+                    nameInput.focus();
+                    
+                    // เปลี่ยนปุ่มใหญ่ให้กลายเป็นคำว่า "Confirm Edit" และเปลี่ยนเป็นสีส้ม
+                    submitBtn.innerText = "Confirm Edit";
+                    submitBtn.style.background = "#d29922";
+                    
+                    isEditing = true;
+                    editTarget = itemBox; // ล็อกเป้าไว้ว่าเรากำลังจะแก้กล่องนี้นะ
+                });
+
+                // เอาข้อความใหม่ไปต่อท้ายรายการข้างล่างสุด (แสดงเพิ่มขึ้นเรื่อย ๆ)
+                listContainer.appendChild(itemBox);
+            }
+
+            // เคลียร์ช่องกรอกข้อความให้ว่างเพื่อรอพิมพ์คำต่อไป
+            nameInput.value = "";
+        });
+
+        // ⌨️ แถมฟังก์ชัน: ถ้าพิมพ์เสร็จแล้วกดปุ่ม Enter บนคีย์บอร์ด ก็ให้ทำงานเหมือนกดปุ่ม Submit เลยครับ
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitBtn.click();
+            }
+        });
+    </script>
+
+</body>
+</html>
